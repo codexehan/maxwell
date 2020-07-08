@@ -189,6 +189,7 @@ public class Maxwell implements Runnable {
 	private void startInner() throws Exception {
 		try ( Connection connection = this.context.getReplicationConnection();
 		      Connection rawConnection = this.context.getRawMaxwellConnection() ) {
+			//检测mysql的各种设置
 			MaxwellMysqlStatus.ensureReplicationMysqlState(connection);
 			MaxwellMysqlStatus.ensureMaxwellMysqlState(rawConnection);
 			if (config.gtidMode) {

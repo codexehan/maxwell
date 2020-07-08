@@ -14,6 +14,9 @@ import java.io.IOException;
 import com.zendesk.maxwell.util.AbstractConfig;
 import com.zendesk.maxwell.MaxwellMysqlConfig;
 
+/**
+ * 获取各种配置参数
+ */
 public class MaxwellBootstrapUtilityConfig extends AbstractConfig {
 	static final Logger LOGGER = LoggerFactory.getLogger(MaxwellBootstrapUtilityConfig.class);
 
@@ -22,20 +25,31 @@ public class MaxwellBootstrapUtilityConfig extends AbstractConfig {
 	public String  databaseName;
 	public String  schemaDatabaseName;
 	public String  tableName;
+	/**
+	 * 添加启动条件
+	 */
 	public String  whereClause;
 	public String  log_level;
 	public String  clientID;
 	public String  comment;
 
+	/**
+	 * row id
+	 */
 	public Long    abortBootstrapID;
 	public Long    monitorBootstrapID;
 
 	public MaxwellBootstrapUtilityConfig(String argv[]) {
+		//提取命令行参数
 		this.parse(argv);
 		this.setDefaults();
 	}
 
 
+	/**
+	 * 连接数据库
+	 * @return
+	 */
 	public String getConnectionURI() {
 		URIBuilder uriBuilder = new URIBuilder();
 		uriBuilder.setScheme("jdbc:mysql");
@@ -108,7 +122,7 @@ public class MaxwellBootstrapUtilityConfig extends AbstractConfig {
 		OptionSet options = buildOptionParser().parse(argv);
 		Properties properties;
 
-		if ( options.has("config") ) {
+		if ( options.has("config") ) {//是否设置了新的config文件
 			properties = parseFile((String) options.valueOf("config"), true);
 		} else {
 			properties = parseFile(DEFAULT_CONFIG_FILE, false);

@@ -62,10 +62,17 @@ public class MaxwellMysqlStatus {
 		}
 	}
 
+	/**
+	 * 检测mysql的各种变量
+	 * SHOW VARIABLES LIKE xxx
+	 * @param c
+	 * @throws SQLException
+	 * @throws MaxwellCompatibilityError
+	 */
 	public static void ensureReplicationMysqlState(Connection c) throws SQLException, MaxwellCompatibilityError {
 		MaxwellMysqlStatus m = new MaxwellMysqlStatus(c);
 
-		m.ensureServerIDIsSet();
+		m.ensureServerIDIsSet();//server_id
 		m.ensureVariableState("log_bin", "ON");
 		m.ensureVariableState("binlog_format", "ROW");
 		m.ensureRowImageFormat();

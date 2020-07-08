@@ -28,6 +28,7 @@ public class MaxwellBootstrapUtility {
 	private boolean isComplete = false;
 
 	private void run(String[] argv) throws Exception {
+		//接收参数 启动
 		MaxwellBootstrapUtilityConfig config = new MaxwellBootstrapUtilityConfig(argv);
 
 		if ( config.log_level != null ) {
@@ -35,21 +36,25 @@ public class MaxwellBootstrapUtility {
 		}
 
 		ConnectionPool connectionPool = getConnectionPool(config);
+		//替代 数据库 in case
 		ConnectionPool replConnectionPool = getReplicationConnectionPool(config);
 		try ( final Connection connection = connectionPool.getConnection();
 				final Connection replicationConnection = replConnectionPool.getConnection() ) {
 			if ( config.abortBootstrapID != null ) {
+				//确定是否存在这一行数据 不存在程序报错 无法启动
 				getInsertedRowsCount(connection, config.abortBootstrapID);
+				//存在的话，一处这一行数据
 				removeBootstrapRow(connection, config.abortBootstrapID);
 				return;
 			}
 
 			long rowId;
-			if ( config.monitorBootstrapID != null ) {
+			if ( config.monitorBootstrapID != null ) {//如果指定了启动行，rowId就从该行开始
 				getInsertedRowsCount(connection, config.monitorBootstrapID);
 				rowId = config.monitorBootstrapID;
-			} else {
+			} else {//没指定启动行，就从最后一行开始
 				Long totalRows = calculateRowCount(replicationConnection, config.databaseName, config.tableName, config.whereClause);
+				//再次插入一行启动信息
 				rowId = insertBootstrapStartRow(connection, config.databaseName, config.tableName, config.whereClause, config.clientID, config.comment, totalRows);
 			}
 
@@ -133,6 +138,12 @@ public class MaxwellBootstrapUtility {
 		}
 	}
 
+	/**
+	 * C3P0 连接池
+	 * @param config
+	 * @return
+	 * @throws SQLException
+	 */
 	private ConnectionPool getConnectionPool(MaxwellBootstrapUtilityConfig config) throws SQLException {
 		String connectionURI = config.getConnectionURI();
 		System.out.println("connecting to " + connectionURI);
